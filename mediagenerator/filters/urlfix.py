@@ -1,6 +1,5 @@
 import re
 import os
-import posixpath
 from hashlib import sha1
 
 from django.conf import settings
@@ -77,15 +76,15 @@ class UrlRerwiter(object):
             hashid = ""
 
         if url.startswith("."):
-            rebased = posixpath.join(self.base, url)
-            rebased = posixpath.normpath(rebased)
+            rebased = os.path.join(self.base, url)
+            rebased = os.path.normpath(rebased)
         else:
             rebased = url.strip("/")
 
 
 
         if not os.path.exists(os.path.join(self.root, rebased)):
-            print "Check path", os.path.join(self.root, rebased), rebased
+            print "Check path", os.path.realpath(os.path.join(self.root, rebased)), rebased
             raise Exception("Unable to find url `%s` from file %s. File does not exists: %s" % (
                 url, 
                 self.name,
@@ -104,7 +103,7 @@ class UrlRerwiter(object):
             rebased_prefix, rebased_extention = rebased.rsplit(".", 1)
             rebased = "%s-%s.%s" % (rebased_prefix, version, rebased_extention)
 
-        rebased = posixpath.join(prefix, rebased)
+        rebased = os.path.join(prefix, rebased)
         return "/" + rebased.strip("/") + hashid
 
 
