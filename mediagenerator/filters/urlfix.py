@@ -11,10 +11,10 @@ JS_URL_PREFIX = getattr(settings, "MEDIA_JS_URL_FILTER_PREFIX", r"OTA\.")
 
 
 class UrlFixFilter(FileFilter):
-    
-    
-    def get_dev_output(self, name, variation, content=None):
-        
+
+
+    def get_dev_output(self, name, variation, content = None):
+
         if not content:
             content = super(UrlFixFilter, self).get_dev_output(name, variation)
 
@@ -28,10 +28,10 @@ class UrlFixFilter(FileFilter):
 
 
 class UrlRerwiter(object):
-    
+
     re_css = re.compile(r'url\s*\((?P<d>["\'])?(?P<url>.*?)(?P=d)?\)', re.UNICODE)
-    re_js  = re.compile(r'OTA\.url\s*\((?P<d>["\'])(?P<url>.*?)(?P=d)\)', re.UNICODE)
-    
+    re_js = re.compile(r'OTA\.url\s*\((?P<d>["\'])(?P<url>.*?)(?P=d)\)', re.UNICODE)
+
     def __init__(self, name):
         self.name = name
         self.type = type
@@ -47,7 +47,7 @@ class UrlRerwiter(object):
         else:
             raise Exception("Unsupported filetype for UrlFixFilter: %s" % name)
 
-    def rewrite(self, content): 
+    def rewrite(self, content):
         if self.type == 'js':
             return self.re_js.sub(self._rewrite_js, content)
         else:
@@ -82,29 +82,31 @@ class UrlRerwiter(object):
             rebased = url.strip("/")
 
 
-
-        if not os.path.exists(os.path.join(self.root, rebased)):
-            print "Check path", os.path.realpath(os.path.join(self.root, rebased)), rebased
+        local_file_path = os.path.join(self.root, rebased)
+        if not os.path.exists(local_file_path):
+            print "Check path", os.path.realpath(local_file_path), rebased
             raise Exception("Unable to find url `%s` from file %s. File does not exists: %s" % (
-                url, 
+                url,
                 self.name,
-                os.path.join(self.root, rebased)
+                local_file_path
             ))
 
         if appsettings.MEDIA_DEV_MODE:
             prefix = appsettings.DEV_MEDIA_URL
-            version = os.path.getmtime(os.path.join(self.root, rebased))
+            version = os.path.getmtime(local_file_path)
             rebased += "?v=%s" % version
         else:
             prefix = appsettings.PRODUCTION_MEDIA_URL
-            with open(os.path.join(self.root, rebased)) as sf:
+            with open(local_file_path, "rb") as sf:
                 version = sha1(sf.read()).hexdigest()
+                print(version)
 
             rebased_prefix, rebased_extention = rebased.rsplit(".", 1)
             rebased = "%s-%s.%s" % (rebased_prefix, version, rebased_extention)
 
-        rebased = os.path.join(prefix, rebased)
-        return "/" + rebased.strip("/") + hashid
+        #need to correct the windows path (back slash) to web url (forward slash)
+        rebased = "\"" + os.path.join(prefix, rebased.replace("\\", "/")) + "\""
+        return rebased.strip("/") + hashid
 
 
 
