@@ -29,6 +29,7 @@ class CopyFiles(Generator):
             self.collect_copyable_files(media_files, root)
 
         for name, source in media_files.items():
+            print(source)
             fp = open(source, 'rb')
             hash = sha1(fp.read()).hexdigest()
             fp.close()

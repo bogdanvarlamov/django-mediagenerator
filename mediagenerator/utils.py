@@ -19,8 +19,8 @@ except (ImportError, AttributeError):
 
 try:
     _media_blocks = import_module(GENERATED_MEDIA_BLOCKS_MODULE)
-    MEDIA_BLOCKS_FILES      = _media_blocks.MEDIA_BLOCKS_FILES
-    MEDIA_BLOCKS_BUNDLES    = _media_blocks.MEDIA_BLOCKS_BUNDLES
+    MEDIA_BLOCKS_FILES = _media_blocks.MEDIA_BLOCKS_FILES
+    MEDIA_BLOCKS_BUNDLES = _media_blocks.MEDIA_BLOCKS_BUNDLES
     if media_settings.MEDIA_DEV_MODE:
         from mediagenerator.generators.bundles import provider
         provider.default.set_data(MEDIA_BLOCKS_BUNDLES.values())
@@ -102,15 +102,15 @@ def get_media_url_mapping():
 
     return mapping
 
-def media_urls(key, refresh=False):
+def media_urls(key, refresh = False):
     if media_settings.MEDIA_DEV_MODE:
         if refresh:
             _refresh_dev_names()
         return [DEV_MEDIA_URL + url for url in _generated_names[key]]
     return [PRODUCTION_MEDIA_URL + get_production_mapping()[key]]
 
-def media_url(key, refresh=False):
-    urls = media_urls(key, refresh=refresh)
+def media_url(key, refresh = False):
+    urls = media_urls(key, refresh = refresh)
     if len(urls) == 1:
         return urls[0]
     raise ValueError('media_url() only works with URLs that contain exactly '
@@ -128,7 +128,7 @@ def get_media_dirs():
         _media_dirs_cache.extend(media_dirs)
     return _media_dirs_cache
 
-def find_file(name, media_dirs=None):
+def find_file(name, media_dirs = None):
     if media_dirs is None:
         media_dirs = get_media_dirs()
     for root in media_dirs:
@@ -162,7 +162,7 @@ def _load_backend(path):
 def get_media_bundles_names(block_name):
     if media_settings.MEDIA_DEV_MODE:
         provider = import_module("mediagenerator.generators.bundles.provider")
-        bundles =_get_block_bundles(block_name)
+        bundles = _get_block_bundles(block_name)
         provider.default.set_data(bundles)
         _refresh_dev_names()
         return [b[0] for b in bundles]
@@ -176,12 +176,12 @@ def get_media_bundles_blocks():
     else:
         return MEDIA_BLOCKS_FILES, MEDIA_BLOCKS_BUNDLES
 
-def _get_dev_media_bundles_blocks(refresh_names=True):
+def _get_dev_media_bundles_blocks(refresh_names = True):
     blocks_files = {}
     blocks_bundles = {}
     for path in settings.TEMPLATE_DIRS:
         os.path.walk(path, _walk_tmpl, (path, blocks_bundles, blocks_files))
-    
+
     provider = import_module("mediagenerator.generators.bundles.provider")
     provider.default.set_data(blocks_bundles.values())
     if refresh_names:
