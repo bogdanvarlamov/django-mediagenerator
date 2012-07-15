@@ -6,6 +6,7 @@ from django.conf import settings
 
 from mediagenerator import settings as appsettings
 from mediagenerator.generators.bundles.base import FileFilter
+from mediagenerator import utils
 
 JS_URL_PREFIX = getattr(settings, "MEDIA_JS_URL_FILTER_PREFIX", r"OTA\.")
 
@@ -81,8 +82,7 @@ class UrlRerwiter(object):
         else:
             rebased = url.strip("/")
 
-
-        local_file_path = os.path.join(self.root, rebased)
+        local_file_path = utils.find_file(rebased)
         if not os.path.exists(local_file_path):
             print "Check path", os.path.realpath(local_file_path), rebased
             raise Exception("Unable to find url `%s` from file %s. File does not exists: %s" % (
@@ -90,7 +90,7 @@ class UrlRerwiter(object):
                 self.name,
                 local_file_path
             ))
-
+            
         if appsettings.MEDIA_DEV_MODE:
             prefix = appsettings.DEV_MEDIA_URL
             version = os.path.getmtime(local_file_path)
